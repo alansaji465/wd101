@@ -1,0 +1,123 @@
+<html>
+  <head>
+    <title>Registration Form</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+      $(document).ready(function(){
+        //Get the data from localStorage
+        var data = JSON.parse(localStorage.getItem("registrationData"));
+        //Check if data exists
+        if (data) {
+          //Populate the table
+          populateTable(data);
+        }
+        //Handle the submit button
+        $("#registration-form").submit(function(e){
+          //Get the values
+          var name = $("#name").val();
+          var email = $("#email").val();
+          var password = $("#password").val();
+          var dob = $("#dob").val();
+          var accepted = $("#accepted").is(":checked");
+          //Check if the data is valid
+          if (name && email && password && dob && accepted) {
+            //Check the age
+            var age = calculateAge(dob);
+            if (age >= 18 && age <= 55) {
+              //Check the email
+              if (validateEmail(email)) {
+                //Create the object
+                var obj = {
+                  name: name,
+                  email: email,
+                  password: password,
+                  dob: dob,
+                  accepted: accepted
+                };
+                //Check if data exists
+                if (data) {
+                  //Add the object to the data
+                  data.push(obj);
+                } else {
+                  //Create the array
+                  data = [obj];
+                }
+                //Set the data in localStorage
+                localStorage.setItem("registrationData", JSON.stringify(data));
+                //Populate the table
+                populateTable(data);
+              } else {
+                alert("Invalid email!");
+              }
+            } else {
+              alert("Invalid age!");
+            }
+          } else {
+            alert("Please fill all the fields!");
+          }
+          //prevent form submission
+          e.preventDefault();
+        });
+        //Function to populate the table
+        function populateTable(data){
+          //Clear the table
+          $("#table-data").empty();
+          //Loop through the data
+          for (var i = 0; i < data.length; i++) {
+            //Create the table row
+            var row = "<tr>";
+            row += "<td>" + data[i].name + "</td>";
+            row += "<td>" + data[i].email + "</td>";
+            row += "<td>" + data[i].password + "</td>";
+            row += "<td>" + data[i].dob + "</td>";
+            row += "<td>" + data[i].accepted + "</td>";
+            row += "</tr>";
+            //Add the row to the table
+            $("#table-data").append(row);
+          }
+        }
+        //Function to calculate age
+        function calculateAge(dateString) {
+          var today = new Date();
+          var birthDate = new Date(dateString);
+          var age = today.getFullYear() - birthDate.getFullYear();
+          var m = today.getMonth() - birthDate.getMonth();
+          if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+          }
+          return age;
+        }
+        //Function to validate email
+        function validateEmail(email) {
+          var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          return re.test(String(email).toLowerCase());
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Registration Form</h1>
+    <form id="registration-form">
+      Name: <input type="text" id="name"/><br/>
+      Email: <input type="text" id="email"/><br/>
+      Password: <input type="password" id="password"/><br/>
+      Date of Birth: <input type="date" id="dob"/><br/>
+      Accepted terms? <input type="checkbox" id="accepted"/><br/>
+      <button type="submit">Submit</button>
+    </form>
+    <h2>Details</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Password</th>
+          <th>Dob</th>
+          <th>Accepted terms?</th>
+        </tr>
+      </thead>
+      <tbody id="table-data">
+      </tbody>
+    </table>
+  </body>
+</html>
